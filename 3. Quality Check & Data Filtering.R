@@ -55,9 +55,9 @@ print(genotype.s) #658186 SNPs are remaining
 # Creating row summary statistics for the sample 
 snpsummary.row <- row.summary(genotype.s)
 
-#gc()
 
-# Calculating the inbreeding coefficient for the sample 
+# Calculating the inbreeding coefficient for the sample and adding it to the 
+# row summary statistics for the sample
 MAF <- snpsummary.col$MAF
 callmatrix <- !is.na(genotype.s)
 hetExp <- callmatrix %*% (2*MAF*(1-MAF))
@@ -93,8 +93,6 @@ kin.cutoff <- 0.1  # Kinship Cut-Off based on IBD coefficient
 ld.cutoff <- 0.2   # LD cut-off. 0.2 seems to be the standard in GWAS. 
 
 ## Creating the gds files that are required for the SNPRelate functions 
-## Don't understand why we need to do this, just following the instructions in 
-## the GWAS tutorials 
 # Creating gds file as SNPRelate functions require gds files to run
 
 # Converting from PLINK to GDS
@@ -118,7 +116,9 @@ snpSUB <- snpgdsLDpruning(genofile, ld.threshold = ld.cutoff,
 snpset.ibd <- unlist(snpSUB, use.names = FALSE)
 cat(length(snpset.ibd), "will be used in IBD analysis\n") # expect 72890 SNP's
 
-## Find IBD coeeficients using Method of Moments procedure. Include pairwise kinship
+## Find IBD coefficients using Method of Moments procedure. 
+## Method of Moments is a method of estimating population parameters 
+## Include pairwise kinship 
 ibd <- snpgdsIBDMoM(genofile, kinship = TRUE,
                     sample.id = genosample.ids,
                     snp.id = snpset.ibd,
@@ -129,8 +129,10 @@ head(ibdcoeff)
 # check if there are any candidates for relatedness
 ibdcoeff <- ibdcoeff [ibdcoeff$kinship >= kin.cutoff, ]
 
-##iteratively remove samples with high kindship starting with the sample with 
-## the most pairings
+##iteratively remove samples with high kinship starting with the sample with 
+## the most pairings. The statistical significance of a GWAS analysis is 
+## impaired by a high degree of relatedness within the population. So, we want 
+## to eliminate kinship as much as we possibly can. 
 related.samples <- NULL
 while (nrow(ibdcoeff) > 0 ) {
   ## count the number of occurrences of each and take the top one
@@ -154,8 +156,12 @@ cat(length(related.samples), "similar samples removed due to
     correlation coefficient >=", kin.cutoff, "\n")
 print(genotype.s) # except all 1401 subject remain
 
-# checking for ancestry 
-## Might not be necessary???
+
+# checking for ancestry. PCA is one approach to visualizing and classifying 
+# individuals into ancestry groups based on their observed genetic makeup. 
+# This is done to eliminate sample-level errors. For e.g. There could be an  
+# individual who do not fall within a racial/ethnic cluster despite claiming 
+# to be of a certain racial/ethnic group.
 
 
 ## find PCA matrix
@@ -173,7 +179,9 @@ pctab <- data.frame(sample.id = pca.anc$sample.id,
 plot(pctab$PC2, pctab$PC1, xlab = "Principal Component 2",
      ylab = "Principal Component 1", main = "Ancestry Plot")
 
-# testing for violations of Hardy-Weinberg equilibrium (HWE)
+# testing for violations of Hardy-Weinberg equilibrium (HWE).
+# Violations of HWE can be an indication of genotyping error so it is common 
+# practice to remove SNPs for which HWE is violated. 
 
 # setting threshold for HWE test p < 1x10^10-6
 HWE.thres <- 10^-6  

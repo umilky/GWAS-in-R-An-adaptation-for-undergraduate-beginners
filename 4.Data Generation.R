@@ -1,6 +1,13 @@
 # === Data Generation ==========================================================
 
-## generating principal compenents for modeling 
+## Principal Components (PCs) based on observed genotype data capture 
+## information on substructure - genetic diversity in an apparently homogenous 
+## population that is caused by population genetic history (migration, 
+## selection, and/or ethnic integration). These substructures cannot be inferred 
+## from self-reported race and ethnicity variables.
+
+
+## generating principal components for modeling 
 
 # set LD threshold to 0.2
 ld.cutoff <- 0.2
@@ -24,8 +31,12 @@ colnames(pcs)[2:11] <- paste("pc", 1:10, sep ="")
 
 print(head(pcs))
 
-## I didnt read the description for this section 
-## genotype imputation
+## Imputation of non-typed SNPs
+## genotypes of untyped SNPs may have a functional relationship to the 
+## outcome and therefore provide additional power for identifying association.
+## Imputation of SNPs involve estimating missing genotypes from the haplotype 
+## or genotype reference panel. Here, we use the 1000 Genomes data for this. 
+
 
 ## read in 1000g data for given chromosome 16 
 thougeno <- read.pedfile(onethou.fn$ped, snps = onethou.fn$info, which = 1)
@@ -73,7 +84,7 @@ minor <- 0.01
 rules <- rules[imputation.r2(rules) >= r2threshold]
 
 cat(length(rules), "imputation rules remain after uncertain imputations were removed\n")
-## 162628 imputation rules remain afer uncertain imputation were removed
+## 162628 imputation rules remain after uncertain imputation were removed
 
 rules <- rules[imputation.maf(rules) >= minor]
 cat(length(rules), "imputation rules remain after MAF filtering\n")
