@@ -31,7 +31,7 @@ colnames(pcs)[2:11] <- paste("pc", 1:10, sep ="")
 
 print(head(pcs))
 
-## Imputation of non-typed SNPs
+## Imputation of non-typed SNPs (honestly should get rid of this; adds work; not mandatory)
 ## genotypes of untyped SNPs may have a functional relationship to the 
 ## outcome and therefore provide additional power for identifying association.
 ## Imputation of SNPs involve estimating missing genotypes from the haplotype 
