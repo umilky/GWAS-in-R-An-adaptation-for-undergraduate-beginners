@@ -58,6 +58,19 @@ GWASoutput <- read.table("GWAS/GWASout.txt",
 
 head(GWASoutput)
 
+# Calculating the -log10 of the p-values 
+GWASoutput$logp <- -log10(GWASoutput$p.value)
+
+# Merge output with geno.bim by SNP name to add position and chromosome number
+GWASoutput <- merge(GWASoutput, geno.bim[,c("SNP", "chr", "position")])
+head(GWASoutput)
+
+# Order SNPs by significance 
+GWASoutput <- arrange(GWASoutput, -logp)
+
+print(head(GWASoutput))
+
+
 # on to script 6.Visualization 
 
 
