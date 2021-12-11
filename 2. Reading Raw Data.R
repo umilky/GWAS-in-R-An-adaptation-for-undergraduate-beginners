@@ -8,17 +8,23 @@
 
 geno.me <- read.plink(gwas.data$bed, gwas.data$bim, gwas.data$fam)
 
-#creating the genotyope object from the geno.me list 
+# creating the genotyope object from the geno.me list 
 
 genotype <- geno.me$genotype 
 print(genotype)
 head(genotype)
+
+# obtain the SNP information from geno list
+geno.bim <- geno.me$map
+colnames(geno.bim) <- c("chr", "SNP", "gen.dist", "position", "A1", "A2")
+print(head(geno.bim))
 
 
 #creating SNP object from the geno.me list 
 SNP.genome <- geno.me$map
 colnames(SNP.genome) <- c("chromosome", "SNP", "gen.dist", "position", "N1", 
                           "N2")
+
 print(head(SNP.genome))
 
 #removing raw data to create space 
@@ -37,5 +43,12 @@ head(phenotype)
 
 genotype.s <- genotype[phenotype$FamID, ]
 
-#Now we move on to the next script to filter this data
+
+### we need to save these objects somehow so they can run in future scripts
+
+# the authors use this
+# Write genotype, genoBim, clinical for future use
+save(genotype, genoBim, clinical, file = working.data.fname(1))
+
+# on to script 3.Data.filtering 
 

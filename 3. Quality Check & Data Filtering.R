@@ -9,9 +9,9 @@
 # information is not missing (i.e. no. of individuals with SNP information/total
 # number of individuals in the study). These account for errors in genotyping. 
 
-# Creating summary statistics of SNP information 
+# Creating column summary statistics of SNP information 
 
-snpsummary <- col.summary(genotype.s)
+snpsummary.col <- col.summary(genotype.s)
 head(col.summary)
 
 # Setting thresholds for the filtering 
@@ -20,7 +20,7 @@ call <- 0.95 # SNPs with 5% missing data is retained after filtering.
 minor.f <- 0.01 
 
 # Filtering the SNP data 
-fil.genotype <- with(snpsummary, (!is.na(MAF) & MAF > minor.f) 
+fil.genotype <- with(snpsummary.col, (!is.na(MAF) & MAF > minor.f) 
                      & Call.rate >= call)
 fil.genotype[is.na(fil.genotype)] <- FALSE #Remove NA values 
 
@@ -32,7 +32,7 @@ genotype.s <- genotype.s[,fil.genotype]
 
 # Subset the SNP summary data for SNPs those meet the MAF and call rate criteria
 
-snpsummary <- snpsummary[fil.genotype,]
+snpsummary.col <- snpsummary.col[fil.genotype,]
 
 print(genotype.s) #658186 SNPs are remaining
 
@@ -52,37 +52,24 @@ print(genotype.s) #658186 SNPs are remaining
 # coefficient |F| = (1 - O/E) > 0.10 are removed, where O and E are respectively 
 # the observed and expected counts of heterozygous SNPs within an individual.
 
-# Creating summary statistics for the sample 
-sample.summary <- row.summary(genotype.s)
+# Creating row summary statistics for the sample 
+snpsummary.row <- row.summary(genotype.s)
 
-gc()
-rm(clinical)
+#gc()
 
 # Calculating the inbreeding coefficient for the sample 
-
-MAF <- snpsummary$MAF 
-
-Exphet <- (!is.na(genotype.s)) %*% (2*MAF*(1-MAF))
-   # Exphet is calculated using 2*p*(1-p), where p is the dominant allele
-   # frequency at that SNP
-
-
-Obshet <- with(sample.summary, Heterozygosity*(ncol(genotype.s))*Call.rate)
-
-F.value <- 1-(Obshet/Exphet)
-
-#Including the F-value in the sample statistics 
-
-sample.summary$hetF <- F.value 
+MAF <- snpsummary.col$MAF
+callmatrix <- !is.na(genotype.s)
+hetExp <- callmatrix %*% (2*MAF*(1-MAF))
+hetObs <- with(snpsummary.row, Heterozygosity*(ncol(genotype.s))*Call.rate)
+snpsummary.row$hetF <- 1-(hetObs/hetExp)
 
 # Setting thresholds for sample filtering 
 samp.call <- 0.95       # 95% call rate
 het.cutoff <- 0.10      # Inbreeding coefficient cutoff
 
-
 #Filtering sample based on threshold
-
-fil.sample <- with(sample.summary, !is.na(Call.rate) & Call.rate > samp.call &
+fil.sample <- with(snpsummary.row, !is.na(Call.rate) & Call.rate > samp.call &
                      abs(hetF) <= het.cutoff)
 
 fil.sample[is.na(fil.sample)] <- FALSE   #removing NAs from the sample 
@@ -95,6 +82,7 @@ print(nrow(genotype.s)-sum(fil.sample))  # 0 subjects removed
 genotype.s <- genotype.s[fil.sample,]
 phenotype <- phenotype[rownames(genotype.s),]
 
+head(genotype.s)
 
 # Now we will further filter the sample for relatedness and redundancy. 
 # We will use the linkage disequilibrium as a threshold to remove redundancy. 
@@ -104,27 +92,107 @@ phenotype <- phenotype[rownames(genotype.s),]
 kin.cutoff <- 0.1  # Kinship Cut-Off based on IBD coefficient
 ld.cutoff <- 0.2   # LD cut-off. 0.2 seems to be the standard in GWAS. 
 
-
-# Creating the gds files that are required for the SNPRelate functions 
-# Don't understand why we need to do this, just following the instructions in 
-# the GWAS tutorials 
+## Creating the gds files that are required for the SNPRelate functions 
+## Don't understand why we need to do this, just following the instructions in 
+## the GWAS tutorials 
+# Creating gds file as SNPRelate functions require gds files to run
 
 # Converting from PLINK to GDS
-snpgdsBED2GDS(gwas.data$bed, gwas.data$bim, gwas.data$fam, gwas.data$gds)
+##### we should make a check for this so it only runs if the file is missing?
+snpgdsBED2GDS(gwas.data$bed, gwas.data$fam, gwas.data$bim, gwas.data$gds)
 genofile <- snpgdsOpen(gwas.data$gds, readonly = FALSE)
 
 # Removing automatically added "-1" suffixes 
 gds.ids <- read.gdsn(index.gdsn(genofile, "sample.id"))
 gds.ids <- sub("-1", "", gds.ids)
-add.gdsn(genofile, "sample.id", gds.ids, replace = T)
+add.gdsn(genofile, "sample.id", gds.ids, replace = TRUE)
 
 #Prune SNPs for IBD analysis 
+set.seed(1000)
 genosample.ids <- rownames(genotype.s)
 
 snpSUB <- snpgdsLDpruning(genofile, ld.threshold = ld.cutoff,
                           sample.id = genosample.ids,
                           snp.id = colnames(genotype.s))
   
+snpset.ibd <- unlist(snpSUB, use.names = FALSE)
+cat(length(snpset.ibd), "will be used in IBD analysis\n") # expect 72890 SNP's
+
+## Find IBD coeeficients using Method of Moments procedure. Include pairwise kinship
+ibd <- snpgdsIBDMoM(genofile, kinship = TRUE,
+                    sample.id = genosample.ids,
+                    snp.id = snpset.ibd,
+                    num.thread = 1)
+ibdcoeff <- snpgdsIBDSelection(ibd) # Pairwise sample comparison
+head(ibdcoeff)
+
+# check if there are any candidates for relatedness
+ibdcoeff <- ibdcoeff [ibdcoeff$kinship >= kin.cutoff, ]
+
+##iteratively remove samples with high kindship starting with the sample with 
+## the most pairings
+related.samples <- NULL
+while (nrow(ibdcoeff) > 0 ) {
+  ## count the number of occurrences of each and take the top one
+  sample.counts <- arrange(count(c(ibdcoeff$ID1, ibdcoeff$ID2)), -freq)
+  rm.sample <- sample.counts[1, "x"]
+  cat("Removing sample", as.character(rm.sample), "too closely related to",
+      sample.counts[1, "freq"], "other samples. \n")
+  
+  ## remove from ibdcoeff and add to list
+  ibdcoeff <- ibdcoeff[ibdcoeff$ID1 !=rm.sample & ibdcoeff$ID2 != rm.sample,]
+  related.samples <- c(as.character(rm.sample), related.samples)
+}
+
+## filter genotype and clinical to include only unrelated samples
+genotype.s <- genotype.s[!(rownames(genotype.s) %in% related.samples),]
+phenotype <- phenotype[!(phenotype$FamID %in% related.samples),]
+
+genosample.ids <- rownames(genotype.s)
+
+cat(length(related.samples), "similar samples removed due to 
+    correlation coefficient >=", kin.cutoff, "\n")
+print(genotype.s) # except all 1401 subject remain
+
+# checking for ancestry 
+## Might not be necessary???
 
 
+## find PCA matrix
+pca.anc <- snpgdsPCA(genofile, sample.id = genosample.ids, snp.id = snpset.ibd, 
+                 num.thread = 1)
 
+## create data frame of first two principal components
+pctab <- data.frame(sample.id = pca.anc$sample.id,
+                    PC1 = pca.anc$eigenvect[,1], # the first eigenvector
+                    PC2 = pca.anc$eigenvect[,2], # the second eigenvector
+                    stringsAsFactors = FALSE) 
+
+# plot the first two principal components
+#### I dont know what this plot means lol #####
+plot(pctab$PC2, pctab$PC1, xlab = "Principal Component 2",
+     ylab = "Principal Component 1", main = "Ancestry Plot")
+
+# testing for violations of Hardy-Weinberg equilibrium (HWE)
+
+# setting threshold for HWE test p < 1x10^10-6
+HWE.thres <- 10^-6  
+
+# filter based on HWE
+CADcontrols <- phenotype[phenotype$CAD==0, 'FamID' ]
+snpsum.col.cont <- col.summary(genotype.s[CADcontrols,])
+HWE.use <- with(snpsum.col.cont, !is.na(z.HWE) & ( abs(z.HWE) < abs( qnorm(HWE.thres/2))))
+rm(snpsum.col.cont)
+
+HWE.use[is.na(HWE.use)] <- FALSE          # Remove NA's as well
+cat(ncol(genotype.s)-sum(HWE.use),"SNPs will be removed due to high HWE.\n") 
+
+
+## subset genotype and SNP summary data for SNPs that pass HWE criteria
+genotype.s <- genotype.s[,HWE.use]
+print(genotype.s)
+
+
+### Here we could save the filtered genotype.s as a clean csv? 
+
+# on to script 4.Data.generation

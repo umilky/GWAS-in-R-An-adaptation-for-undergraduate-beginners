@@ -48,10 +48,19 @@ p.graphics <- paste(dir.path, "/", folder.names[5], "/", sep = "")
 
 
 # === Input Files ==============================================================
-?sprintf #returns character objects that are a formatted combination of input values
+#returns character objects that are a formatted combination of input values
  
 gwas.data <- lapply(c(bed="bed", bim="bim", fam="fam", gds="gds"), 
-                      function(n) sprintf("%s/GWAStutorial.%s", dir.path, n)) 
-clinical.data <- sprintf("%s/GWAStutorial_clinical.csv", dir.path)
+                      function(n) sprintf("%s/GWAStutorial.%s",
+                                          p.data.raw, n)) 
 
- 
+clinical.data <- sprintf("%s/GWAStutorial_clinical.csv", p.data.raw)
+
+onethou.fn <- lapply(c(info='info',ped='ped'), 
+                     function(n) sprintf("%s/chr16_1000g_CEU.%s",
+                                         p.data.raw, n))
+
+protein.coding.coords.fname <- sprintf("%s/ProCodgene_coords.csv", p.data.raw)
+
+# on to script 2.Reading.raw.data.R
+
