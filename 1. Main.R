@@ -1,10 +1,10 @@
 # === GWAS tutorial ============================================================
 # authors: Umayeer Milky, Severin Santana
 
-# This code is the same as the one demostrated by Reed et al. (2015). The 
-# purpose of running this code is to familiarize ourselves with the different 
-# steps involved in a GWAS analysis in R. Minor modifications to the original
-# code has been made as required. 
+# This code is an adaptation of the codes demonstrated by  Reed et al. (2015), 
+# Foulkes (2016), Lima (2017) & Marees et al.(2018). The 
+# purpose of this code is to familiarize ourselves with the different 
+# steps involved in a GWAS analysis in R. 
 
 # === Installing Packages ======================================================
 if (!requireNamespace("BiocManager", quietly = TRUE))
