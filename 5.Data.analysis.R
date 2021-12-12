@@ -67,7 +67,7 @@ head(GWASoutput)
 
 # Calculating the -log10 of the p-values 
 GWASoutput$p.value <- as.numeric(GWASoutput$p.value)
-GWASoutput$neg.logp <- log10(GWASoutput$p.value)
+GWASoutput$neg.logp <- -log10(GWASoutput$p.value)
 head(GWASoutput)
 
 
@@ -76,6 +76,7 @@ head(GWASoutput)
 GWASoutput <- merge(GWASoutput, geno.bim[,c("SNP", "chr", "position")], 
                     by = "SNP")
 head(GWASoutput)
+rm(geno.bim)
 
 # Order SNPs by significance 
 GWASoutput <- arrange(GWASoutput, neg.logp)
@@ -98,7 +99,7 @@ results <- data.frame(SNP = imp@snp.names, p.value = p.value(imp),
 results <- results[!is.na(results$p.value),]
 
 # Writing a file containing the results 
-write.csv(results, impute.out.fname, row.names = FALSE)
+# write.csv(results, impute.out.fname, row.names = FALSE)
 
 # Merge imputation testing results with support 
 impute.out <- merge(results, support[,c("SNP", "position")])
@@ -143,7 +144,7 @@ CETP <- rbind.fill(typCETP, impCETP)[,c("SNP", "p.value", "neg.logp", "chr",
                                         "position", "type", "gene")]
 
 print(CETP)
-
+gc()
 # on to script 6.Visualization 
 
 

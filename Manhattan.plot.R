@@ -1,5 +1,5 @@
 # ---- manhattan ----
-# Receives a data.frame of SNPs with Neg_logP, chr, position, and type.
+# Receives a data.frame of SNPs with neg.logp, chr, position, and type.
 # Plots Manhattan plot with significant SNPs highlighted.
 GWAS_Manhattan <- function(GWAS, col.snps=c("black","gray"),
                            col.detected=c("blue"), col.imputed=c("red"), col.text="black",
@@ -25,16 +25,16 @@ GWAS_Manhattan <- function(GWAS, col.snps=c("black","gray"),
   # draw the chromosome label roughly in the middle of each chromosome band
   text.pos <- sapply(c(1:22), function(i) { mean(manhat.ord$pos[manhat.ord$chr==i]) })
   # Plot the data
-  plot(manhat.ord$pos[manhat.ord$type=="typed"]/xscale, manhat.ord$Neg_logP[manhat.ord$type=="typed"],
+  plot(manhat.ord$pos[manhat.ord$type=="typed"]/xscale, manhat.ord$neg.logp[manhat.ord$type=="typed"],
        pch=20, cex=.3, col= manhat.ord$col[manhat.ord$type=="typed"], xlab="Chromosome",
-       ylab="Negative Log P-Value", axes=F, ylim=c(0,max(manhat$Neg_logP)+1))
-  points(manhat.ord$pos[manhat.ord$type=="imputed"]/xscale, manhat.ord$Neg_logP[manhat.ord$type=="imputed"],
+       ylab="Negative Log P-Value", axes=F, ylim=c(0,max(manhat$neg.logp)+1))
+  points(manhat.ord$pos[manhat.ord$type=="imputed"]/xscale, manhat.ord$neg.logp[manhat.ord$type=="imputed"],
          pch=20, cex=.4, col = col.imputed)
-  points(manhat.ord$pos[manhat.ord$type=="typed"]/xscale, manhat.ord$Neg_logP[manhat.ord$type=="typed"],
+  points(manhat.ord$pos[manhat.ord$type=="typed"]/xscale, manhat.ord$neg.logp[manhat.ord$type=="typed"],
          pch=20, cex=.3, col = manhat.ord$col[manhat.ord$type=="typed"])
   axis(2)
   abline(h=0)
-  SigNifSNPs <- as.character(GWAS[GWAS$Neg_logP > Lstringent.thresh & GWAS$type=="typed", "SNP"])
+  SigNifSNPs <- as.character(GWAS[GWAS$neg.logp > Lstringent.thresh & GWAS$type=="typed", "SNP"])
   #Add legend
   legend("topright",c("Bonferroni Corrected Threshold*", "Less Stringent Threshold**"),
          border="black", col=c("gray60", "gray60"), pch=c(0, 0), lwd=c(1,1),
@@ -50,10 +50,10 @@ GWAS_Manhattan <- function(GWAS, col.snps=c("black","gray"),
   if (length(SigNifSNPs)>0){
     sig.snps <- manhat.ord[,'SNP'] %in% SigNifSNPs
     points(manhat.ord$pos[sig.snps]/xscale,
-           manhat.ord$Neg_logP[sig.snps],
+           manhat.ord$neg.logp[sig.snps],
            pch=15,col=col.detected, bg=col.detected,cex=0.5)
     text(manhat.ord$pos[sig.snps]/xscale,
-         manhat.ord$Neg_logP[sig.snps],
+         manhat.ord$neg.logp[sig.snps],
          as.character(manhat.ord[sig.snps,1]), col=col.text, offset=1, adj=-.1, cex=.7)
   }
 }

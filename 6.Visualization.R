@@ -14,7 +14,8 @@ par(mfrow = c(1,1))
 
 # creating Manhattan Plot. 
 # need to save as .pdf later
-GWAS_Manhattan(GWAScomb)
+p <- GWAS_Manhattan(GWAScomb)
+p
 
 
 # creating QQ Plot 
