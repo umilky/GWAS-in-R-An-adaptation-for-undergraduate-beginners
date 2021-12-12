@@ -14,12 +14,21 @@ BiocManager::install("snpStats")
 BiocManager::install("SNPRelate")
 BiocManager::install("rtracklayer")
 BiocManager::install("biomaRt")
-install.packages(c("plyr", "GenABEL", "LDheatmap", "doParallel", "ggplot2"))
+install.packages(c("plyr", "LDheatmap", "doParallel", "ggplot2"))
+install.packages(c("GenABEL.data_1.0.0.tar.gz", "GenABEL_1.8-0.tar.gz"), 
+                 repos = NULL, type="source")
+
 
 library("snpStats")
 library("SNPRelate")
 library("biomaRt")
-library("plyr", "GenABEL", "LDheatmap", "doParallel", "ggplot2")
+library("plyr")
+library("GenABEL")
+library("LDheatmap")
+library("doParallel")
+library("ggplot2")
+library("survival")
+
 library("rtracklayer")
 
 # === customizing data directory ===============================================
