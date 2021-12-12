@@ -33,7 +33,7 @@ names(pcs)[names(pcs) == "FAMID"] <- "FamID"
 
 print(head(pcs))
 
-## Imputation of non-typed SNPs (honestly should get rid of this; adds work; not mandatory)
+## Imputation of non-typed SNPs 
 ## genotypes of untyped SNPs may have a functional relationship to the 
 ## outcome and therefore provide additional power for identifying association.
 ## Imputation of SNPs involve estimating missing genotypes from the haplotype 

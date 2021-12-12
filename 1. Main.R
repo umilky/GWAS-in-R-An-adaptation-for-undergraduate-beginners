@@ -74,6 +74,7 @@ protein.coding.coords.fname <- sprintf("%s/ProCodgene_coords.csv", p.data.raw)
 # === Output Files =============================================================
 
 gwaa.out <- sprintf("%s/GWASout.txt", p.gwas)
+impute.out.fname <- sprintf("%s/Imputation.csv", p.gwas)
 
 # on to script 2.Reading.raw.data.R
 

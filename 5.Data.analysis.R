@@ -10,7 +10,8 @@
 
 # merge clinical data and principal components to create phenotype table
 
-pheno.sub <- merge.data.frame(phenotype,pcs) # data frame => [FamID CAD sex age hdl...pc10]
+pheno.sub <- merge.data.frame(phenotype,pcs) 
+# data frame => [FamID CAD sex age hdl...pc10]
 
 # rank-based inverse normal transformation of hdl
 pheno.sub$phenotype <- rntransform(pheno.sub$hdl, family = "gaussian")
@@ -60,7 +61,8 @@ End <- Sys.time()
 print(End-Start)
 
 # Reading GWAS output 
-GWASoutput <- read.table(gwaa.out, sep = "",header=TRUE, colClasses=c("character"))
+GWASoutput <- read.table(gwaa.out, sep = "",header=TRUE, 
+                         colClasses=c("character"))
 head(GWASoutput)
 
 # Calculating the -log10 of the p-values 
@@ -68,14 +70,79 @@ GWASoutput$p.value <- as.numeric(GWASoutput$p.value)
 GWASoutput$neg.logp <- log10(GWASoutput$p.value)
 head(GWASoutput)
 
+
 # Merge output with geno.bim by SNP name to add position and chromosome number
 # this does not work and kills the whole thing :(
-GWASoutput <- merge(GWASoutput, geno.bim[,c("SNP", "chr", "position")], by = "SNP")
+GWASoutput <- merge(GWASoutput, geno.bim[,c("SNP", "chr", "position")], 
+                    by = "SNP")
 head(GWASoutput)
 
 # Order SNPs by significance 
 GWASoutput <- arrange(GWASoutput, neg.logp)
 print(head(GWASoutput))
+
+
+## Association analysis of imputed SNPs 
+
+# Performing association testing for the imputed SNPs
+
+rownames(pheno.sub) <- pheno.sub$id
+
+imp <- snp.rhs.tests(phenotype ~ sex + age + pc1 + pc2 + pc3 + pc4 + pc5 + pc6 +
+                       pc7 + pc8 + pc9 + pc10, family = "Gaussian", 
+                     data = pheno.sub, snp.data = target, rules = rules)
+
+# Obtain p values for imputed SNPs
+results <- data.frame(SNP = imp@snp.names, p.value = p.value(imp), 
+                      stringsAsFactors = FALSE)
+results <- results[!is.na(results$p.value),]
+
+# Writing a file containing the results 
+write.csv(results, impute.out.fname, row.names = FALSE)
+
+# Merge imputation testing results with support 
+impute.out <- merge(results, support[,c("SNP", "position")])
+impute.out$chr <- 16
+
+impute.out$type <- "imputed"
+
+# Calculating the -log10 of the imputed p-values 
+impute.out$neg.logp <- -log10(impute.out$p.value)
+
+# Order by p-values 
+impute.out <- arrange(impute.out, p.value)
+print(head(impute.out))
+
+source("map2gene.R")
+
+#Reading file containing protein coding gene coordinates 
+genes <- read.csv(protein.coding.coords.fname, stringsAsFactors = FALSE)
+
+#Subset for CETP SNPs
+impCETP <- map2gene("CETP", coords = genes, SNPs = impute.out)
+
+# Filtering the imputed CETP SNP genotypes
+impCETPgeno <- imputed[, impCETP$SNP]
+
+
+## Integrating typed and imputed SNPs 
+
+GWASoutput$type <- "typed"
+
+GWAScomb <- rbind.fill(GWASoutput, impute.out)
+head(GWAScomb)
+tail(GWAScomb)
+str(GWAScomb)
+
+#Subset for CETP SNPs 
+typCETP <- map2gene("CETP", coords = genes, SNPs = GWASoutput)
+
+#Combine CETP SNPs for typed and imputed analysis 
+
+CETP <- rbind.fill(typCETP, impCETP)[,c("SNP", "p.value", "neg.logp", "chr",
+                                        "position", "type", "gene")]
+
+print(CETP)
 
 # on to script 6.Visualization 
 
