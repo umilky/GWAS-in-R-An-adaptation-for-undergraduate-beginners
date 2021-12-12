@@ -48,7 +48,8 @@ genotype.s <- genotype[phenotype$FamID, ]
 
 # the authors use this
 # Write genotype, genoBim, clinical for future use
-save(genotype, genoBim, clinical, file = working.data.fname(1))
+# does not work ####
+save(genotype, geno.bim, phenotype, file = working.data.fname(1))
 
 # on to script 3.Data.filtering 
 

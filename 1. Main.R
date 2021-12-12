@@ -28,8 +28,8 @@ dir.path <- getwd()
 
 # === folder management ========================================================
 
-folder.names <- c("Raw Data", "Filtered Data", "Generated Data",
-                  "GWAS", "Graphics")
+folder.names <- c("a.raw.data", "b.filtered.data", "c.generated.data",
+                  "d.GWAS", "e.graphics")
 
 for(i in 1:length(folder.names)){ 
   if(file.exists(folder.names[i]) == FALSE){
