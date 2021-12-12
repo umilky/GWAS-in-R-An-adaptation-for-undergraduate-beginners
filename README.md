@@ -1,2 +1,2 @@
-# R--Individual-Project-
+# R--Individual-Project
 GWAS 
