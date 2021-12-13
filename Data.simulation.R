@@ -19,6 +19,7 @@ head(phenotype$phenoComponentsFinal$Y)
 
 
 # step by step 
+# doesnt work 
 # Set parameters
 genVar <- 0.4
 noiseVar <- 1- genVar 
