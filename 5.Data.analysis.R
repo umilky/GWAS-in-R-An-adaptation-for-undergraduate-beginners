@@ -3,7 +3,7 @@
 ## installing packages 
 # They are in our GitHub Repository 
 
-### we could create a folder called "packages" and add them in there? 
+### we could create a folder called "packages" and add them in there?
 
 # association analysis of typed SNPs 
 # this is specific to the data and here we use the HDL-cholestrol as the trait
@@ -61,26 +61,26 @@ End <- Sys.time()
 print(End-Start)
 
 # Reading GWAS output 
-GWASoutput <- read.table(gwaa.out, sep = "",header=TRUE, 
+GWAS.output <- read.table(gwaa.out, sep = "",header=TRUE, 
                          colClasses=c("character"))
-head(GWASoutput)
+head(GWAS.output)
 
 # Calculating the -log10 of the p-values 
-GWASoutput$p.value <- as.numeric(GWASoutput$p.value)
-GWASoutput$neg.logp <- -log10(GWASoutput$p.value)
-head(GWASoutput)
+GWAS.output$p.value <- as.numeric(GWAS.output$p.value)
+GWAS.output$neg.logp <- -log10(GWAS.output$p.value)
+head(GWAS.output)
 
 
 # Merge output with geno.bim by SNP name to add position and chromosome number
 # this does not work and kills the whole thing :(
-GWASoutput <- merge(GWASoutput, geno.bim[,c("SNP", "chr", "position")], 
+GWAS.output <- merge(GWAS.output, geno.bim[,c("SNP", "chr", "position")], 
                     by = "SNP")
-head(GWASoutput)
-rm(geno.bim)
+head(GWAS.output)
+#rm(geno.bim)
 
 # Order SNPs by significance 
-GWASoutput <- arrange(GWASoutput, neg.logp)
-print(head(GWASoutput))
+GWAS.output <- arrange(GWAS.output, neg.logp)
+print(head(GWAS.output))
 
 
 ## Association analysis of imputed SNPs 
@@ -94,15 +94,15 @@ imp <- snp.rhs.tests(phenotype ~ sex + age + pc1 + pc2 + pc3 + pc4 + pc5 + pc6 +
                      data = pheno.sub, snp.data = target, rules = rules)
 
 # Obtain p values for imputed SNPs
-results <- data.frame(SNP = imp@snp.names, p.value = p.value(imp), 
+imp.results <- data.frame(SNP = imp@snp.names, p.value = p.value(imp), 
                       stringsAsFactors = FALSE)
-results <- results[!is.na(results$p.value),]
+imp.results <- imp.results[!is.na(imp.results$p.value),]
 
 # Writing a file containing the results 
 # write.csv(results, impute.out.fname, row.names = FALSE)
 
 # Merge imputation testing results with support 
-impute.out <- merge(results, support[,c("SNP", "position")])
+impute.out <- merge(imp.results, support[,c("SNP", "position")])
 impute.out$chr <- 16
 
 impute.out$type <- "imputed"
@@ -114,6 +114,7 @@ impute.out$neg.logp <- -log10(impute.out$p.value)
 impute.out <- arrange(impute.out, p.value)
 print(head(impute.out))
 
+# source file
 source("map2gene.R")
 
 #Reading file containing protein coding gene coordinates 
@@ -128,15 +129,15 @@ impCETPgeno <- imputed[, impCETP$SNP]
 
 ## Integrating typed and imputed SNPs 
 
-GWASoutput$type <- "typed"
+GWAS.output$type <- "typed"
 
-GWAScomb <- rbind.fill(GWASoutput, impute.out)
-head(GWAScomb)
-tail(GWAScomb)
-str(GWAScomb)
+GWAS.comb <- rbind.fill(GWAS.output, impute.out)
+head(GWAS.comb)
+tail(GWAS.comb)
+str(GWAS.comb)
 
 #Subset for CETP SNPs 
-typCETP <- map2gene("CETP", coords = genes, SNPs = GWASoutput)
+typCETP <- map2gene("CETP", coords = genes, SNPs = GWAS.output)
 
 #Combine CETP SNPs for typed and imputed analysis 
 

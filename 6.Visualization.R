@@ -2,7 +2,6 @@
 
 ## Visualizing the results of the GWAS analysis 
 
-install.packages("survival")
 # Manhattan plots are used to visualize GWA significance level by chromosome
 # location. Visual inspection of this plot allows for identification of SNPs 
 # with relatively small p-values that are in regions with relatively large and 
@@ -14,8 +13,8 @@ par(mfrow = c(1,1))
 
 # creating Manhattan Plot. 
 # need to save as .pdf later
-p <- GWAS_Manhattan(GWAScomb)
-p
+manhattan.plot.s <- GWAS.manhattan(GWAS.comb)
+manhattan.plot.s
 
 
 # creating QQ Plot 
@@ -24,9 +23,9 @@ p
 # estlambda from the package GenABEL to generate our QQ plots. 
 
 #creating QQ plot. Save as pdf later
-GWASoutput$t.value <- as.numeric(GWASoutput$t.value)
-lambda <- estlambda(GWASoutput$t.value^2, plot = TRUE, method = "median")
-
+GWAS.output$t.value <- as.numeric(GWAS.output$t.value)
+lambda.plot.s <- estlambda(GWAS.output$t.value^2, plot = TRUE, method = "median")
+lambda.plot.s
 # END? 
 
 
