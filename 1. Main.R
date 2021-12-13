@@ -36,7 +36,7 @@ dir.path <- getwd()
 
 # === folder management ========================================================
 
-folder.names <- c("a.raw.data", "b.GWAS", "c.graphics")
+folder.names <- c("a.raw.data", "b.GWAS", "c.graphics", "d.simulated.data")
 
 for(i in 1:length(folder.names)){ 
   if(file.exists(folder.names[i]) == FALSE){
@@ -50,6 +50,7 @@ for(i in 1:length(folder.names)){
 p.data.raw <- paste(dir.path, "/", folder.names[1], "/", sep = "")
 p.gwas <- paste(dir.path, "/", folder.names[2], "/", sep = "")
 p.graphics <- paste(dir.path, "/", folder.names[3], "/", sep = "")
+p.simulated.data <- paste(dir.path, "/", folder.names[4], "/", sep = "")
 
 
 # === Input Files ==============================================================
@@ -66,6 +67,8 @@ onethou.fn <- lapply(c(info='info',ped='ped'),
                                          p.data.raw, n))
 
 protein.coding.coords.fname <- sprintf("%s/ProCodgene_coords.csv", p.data.raw)
+
+simulated.bed <- sprintf("%s/simulated.bed", p.data.raw)
 
 # === Output Files =============================================================
 
