@@ -36,8 +36,7 @@ dir.path <- getwd()
 
 # === folder management ========================================================
 
-folder.names <- c("a.raw.data", "b.filtered.data", "c.generated.data",
-                  "d.GWAS", "e.graphics")
+folder.names <- c("a.raw.data", "b.GWAS", "c.graphics")
 
 for(i in 1:length(folder.names)){ 
   if(file.exists(folder.names[i]) == FALSE){
@@ -49,10 +48,8 @@ for(i in 1:length(folder.names)){
 
 #path names to variables
 p.data.raw <- paste(dir.path, "/", folder.names[1], "/", sep = "")
-p.data.filtered <- paste(dir.path, "/", folder.names[2], "/", sep = "")
-p.data.generated <- paste(dir.path, "/", folder.names[3], "/", sep = "")
-p.gwas <- paste(dir.path, "/", folder.names[4], "/", sep = "")
-p.graphics <- paste(dir.path, "/", folder.names[5], "/", sep = "")
+p.gwas <- paste(dir.path, "/", folder.names[2], "/", sep = "")
+p.graphics <- paste(dir.path, "/", folder.names[3], "/", sep = "")
 
 
 # === Input Files ==============================================================
