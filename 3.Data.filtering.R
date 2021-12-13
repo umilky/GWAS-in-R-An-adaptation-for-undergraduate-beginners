@@ -200,7 +200,7 @@ cat(ncol(genotype.s)-sum(HWE.use),"SNPs will be removed due to high HWE.\n")
 
 ## subset genotype and SNP summary data for SNPs that pass HWE criteria
 genotype.s <- genotype.s[,HWE.use]
-print(genotype.s)
+print(head(genotype.s))
 
 
 ### Here we could save the filtered genotype.s as a clean csv? 
