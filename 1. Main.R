@@ -18,7 +18,6 @@ install.packages(c("plyr", "LDheatmap", "doParallel", "ggplot2"))
 install.packages(c("GenABEL.data_1.0.0.tar.gz", "GenABEL_1.8-0.tar.gz"), 
                  repos = NULL, type="source")
 
-
 library("snpStats")
 library("SNPRelate")
 library("biomaRt")
