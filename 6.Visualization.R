@@ -33,7 +33,7 @@ dev.off()
 GWAS.output$t.value <- as.numeric(GWAS.output$t.value)
 
 # creating QQ Plot and saving it as a .pdf
-pdf(paste(p.graphics, "ManhattanPlot.pdf", sep = ""))
+pdf(paste(p.graphics, "lambda.plot.pdf", sep = ""))
 lambda.plot.s <- estlambda(GWAS.output$t.value^2, plot = TRUE, 
                            method = "median")
 dev.off()

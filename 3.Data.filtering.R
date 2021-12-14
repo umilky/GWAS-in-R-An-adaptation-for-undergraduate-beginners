@@ -193,7 +193,7 @@ HWE.use[is.na(HWE.use)] <- FALSE          # Remove NA's as well
 cat(ncol(genotype.s)-sum(HWE.use),"SNPs will be removed due to high HWE.\n") 
 
 
-## subset genotype and SNP summary data for SNPs that pass HWE criteria
+# subset genotype and SNP summary data for SNPs that pass HWE criteria
 genotype.s <- genotype.s[,HWE.use]
 print(head(genotype.s))
 

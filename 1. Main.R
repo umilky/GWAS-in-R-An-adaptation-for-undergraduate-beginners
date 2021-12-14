@@ -2,9 +2,8 @@
 # authors: Umayeer Milky, Severin Santana
 
 # This code is an adaptation of the codes demonstrated by  Reed et al. (2015), 
-# Foulkes (2016), Lima (2017) & Marees et al.(2018). The 
-# purpose of this code is to familiarize ourselves with the different 
-# steps involved in a GWAS analysis in R. 
+# Foulkes (2016), Lima (2017) & Marees et al.(2018). 
+# The code runs a genome-wide association study on genetic and phenotype data.
 
 # R version
 R.version.string
@@ -69,7 +68,7 @@ for(i in 1:length(folder.names)){
 
 # ******************************************************************************
 
-#path names to variables
+# creation of paths to each folder in repository 
 p.data.raw <- paste(dir.path, "/", folder.names[1], "/", sep = "")
 p.gwas <- paste(dir.path, "/", folder.names[2], "/", sep = "")
 p.graphics <- paste(dir.path, "/", folder.names[3], "/", sep = "")
