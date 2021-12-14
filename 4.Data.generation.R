@@ -85,7 +85,8 @@ minor <- 0.01
 # filter on imputation certainty and MAF
 rules <- rules[imputation.r2(rules) >= r2threshold]
 
-cat(length(rules), "imputation rules remain after uncertain imputations were removed\n")
+cat(length(rules), 
+    "imputation rules remain after uncertain imputations were removed\n")
 ## 162628 imputation rules remain after uncertain imputation were removed
 
 rules <- rules[imputation.maf(rules) >= minor]
@@ -99,7 +100,7 @@ print(imputed)
 # on to script 5.Data.analysis
 
 
-
+#___ end _______________________________________________________________________
 
 
 
