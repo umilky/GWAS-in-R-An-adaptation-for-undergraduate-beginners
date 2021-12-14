@@ -70,6 +70,7 @@ protein.coding.coords.fname <- sprintf("%s/ProCodgene_coords.csv", p.data.raw)
 
 simulated.bed <- sprintf("%s/simulated.bed", p.data.raw)
 
+
 # === Output Files =============================================================
 
 gwaa.out <- sprintf("%s/GWASout.txt", p.gwas)

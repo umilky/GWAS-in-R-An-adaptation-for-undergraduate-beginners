@@ -1,26 +1,26 @@
 ### ========= Data Simulation Using PhenotypeSimulator =========================
 
+# install required packages 
 install.packages("PhenotypeSimulator")
-
 library("PhenotypeSimulator")
-### STILL FIGURING OUT ###
-### via `runSimulation`
 
-# simulate phenotype with population structure and observational noise effects
-# only
-# genetic variance
-genVar <- 0.4
-# random genetic variance: h2b
-phenotype <- runSimulation(N = 100, P = 15, tNrSNP = 10000, SNPfrequencies = c(0.05, 0.1,0.3,0.4),
-                           genVar = 0.4, h2bg = 1, phi = 1,
-                           verbose = TRUE, nonlinear="exp",
-                           proportionNonlinear = 0.7)
-head(phenotype)
-str(phenotype)
-head(phenotype$phenoComponentsFinal$Y)
+n <-  1001
+# simulate phenotype data
+simulatephenotype <- function(n, variable, m, st) {
+  id <- c(1:n)
+  d.pres <- sample(c(0,1), replace=TRUE, size=n)
+  sex <- sample(c(1,2), replace=TRUE, size=n)
+  age <- sample(c(18:65), replace=TRUE, size=n)
+  v <- round(rnorm(n, m, st))
+  df <- cbind.data.frame(id,d.pres,sex,age,v)
+  return(df)
+}
 
+# simulation of population blood glucose levels in mg/dl
+sim.phen <- simulatephenotype(n, "blood glucose (mg/dl)", 96, 21.6)
 
-
+# 
+write.csv(sim.phen, paste(p.simulated.data, "sim.phen.csv", sep = ""), row.names = FALSE)
 
 ### ========= Data Simulation Using GenIO ======================================
 
@@ -62,14 +62,17 @@ x <- matrix(x, nrow = n_loci, ncol = n_ind)
 
 bim <- make_bim( n = n_loci )
 
-# Adding the "chr" prefix to the chromosome values for recognition purposes
-bim$chr <- paste0('chr', bim$chr)
+# Simulating random SNPs 
+#bim$id <- round(runif(n_loci, min = 1, max = 1000000))
 
 # Making SNP IDs look like "rs" IDs
 bim$id <- paste0('rs', bim$id)
 
-# Making positions 1000 bigger
-bim$pos <- bim$pos * 1000
+# Simulating random chromosomes between 1 and 22
+bim$chr <- round(runif(n_loci, min = 1, max = 22))
+
+# Simulating random positons 
+bim$pos <- round(runif(n_loci, min = 10000, max =99999 ))
 
 # Select randomly between Cs and Gs for the reference alleles
 bim$ref <- sample(c('C', 'G'), n_loci, replace = TRUE)
@@ -80,19 +83,12 @@ bim$alt <- sample(c('A', 'T'), n_loci, replace = TRUE)
 ## Creating the fam file 
 fam <- make_fam( n = n_ind )
 
-# Add prefixes to families and IDs for recognition purposes 
-fam$fam <- paste0('fam', fam$fam)
-fam$id <- paste0('id', fam$id)
-
 # Adding the sex values. They are usually 1 and 2
 fam$sex <- sample(1:2, n_ind, replace = TRUE)
 
 # Making phenotype continuous. 
 fam$pheno <- rnorm(n_ind)
 
-# Add column and row names from bim and fam tables we just created.
-rownames(x) <- bim$id
-colnames(x) <- fam$id
 
 # Inspecting x. 
 x[1:10, 1:10]
@@ -108,18 +104,8 @@ geno.c[1:10, 1:10]
 # This is probably not working- I cannot find the data anymore??
 
 write_bed("simulated.bed",x)
-
-write_bim(bim)
-write_fam(fam)
-
-?write_bed
-
-file_plink <- tempfile('vignette-random-data')
-
-time_write_genio <- system.time(
-  write_plink(file_plink,x, bim, fam)
-)
-
+write_bim("simulated.bim",bim)
+write_fam("simulated.fam",fam)
 
 
 

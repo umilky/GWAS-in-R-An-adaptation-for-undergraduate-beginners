@@ -15,7 +15,6 @@ snpsummary.col <- col.summary(genotype.s)
 head(col.summary)
 
 # Setting thresholds for the filtering 
-
 call <- 0.95 # SNPs with 5% missing data is retained after filtering.
 minor.f <- 0.01 
 
@@ -27,13 +26,10 @@ fil.genotype[is.na(fil.genotype)] <- FALSE #Remove NA values
 print(ncol(genotype.s)-sum(fil.genotype)) # 203287 SNPs will be removed
 
 #Subset genotype.s for SNPs those meet the MAF and call rate criteria
-
 genotype.s <- genotype.s[,fil.genotype]
 
 # Subset the SNP summary data for SNPs those meet the MAF and call rate criteria
-
 snpsummary.col <- snpsummary.col[fil.genotype,]
-
 print(genotype.s) #658186 SNPs are remaining
 
 
@@ -92,11 +88,9 @@ head(genotype.s)
 kin.cutoff <- 0.1  # Kinship Cut-Off based on IBD coefficient
 ld.cutoff <- 0.2   # LD cut-off. 0.2 seems to be the standard in GWAS. 
 
-## Creating the gds files that are required for the SNPRelate functions 
-# Creating gds file as SNPRelate functions require gds files to run
-
+# Creating gds which are a combination file 
+# SNPRelate functions require gds files to run
 # Converting from PLINK to GDS
-##### we should make a check for this so it only runs if the file is missing?
 snpgdsBED2GDS(gwas.data$bed, gwas.data$fam, gwas.data$bim, gwas.data$gds)
 genofile <- snpgdsOpen(gwas.data$gds, readonly = FALSE)
 
@@ -105,7 +99,7 @@ gds.ids <- read.gdsn(index.gdsn(genofile, "sample.id"))
 gds.ids <- sub("-1", "", gds.ids)
 add.gdsn(genofile, "sample.id", gds.ids, replace = TRUE)
 
-#Prune SNPs for IBD analysis 
+# Prune SNPs for IBD analysis 
 set.seed(1000)
 genosample.ids <- rownames(genotype.s)
 

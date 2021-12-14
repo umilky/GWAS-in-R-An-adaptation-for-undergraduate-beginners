@@ -8,7 +8,7 @@
 
 geno.me <- read.plink(gwas.data$bed, gwas.data$bim, gwas.data$fam)
 
-# creating the genotyope object from the geno.me list 
+# creating the genotype object from the geno.me list 
 
 genotype <- geno.me$genotype 
 print(genotype)
@@ -22,8 +22,8 @@ print(head(geno.bim))
 
 #creating SNP object from the geno.me list 
 SNP.genome <- geno.me$map
-colnames(SNP.genome) <- c("chromosome", "SNP", "gen.dist", "position", "N1", 
-                          "N2")
+colnames(SNP.genome) <- c("chromosome", "SNP", "gen.dist", "position", "A1", 
+                          "A2")
 
 print(head(SNP.genome))
 
