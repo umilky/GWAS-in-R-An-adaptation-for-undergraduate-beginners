@@ -185,7 +185,8 @@ HWE.thres <- 10^-6
 # filter based on HWE
 CADcontrols <- phenotype[phenotype$CAD==0, 'FamID' ]
 snpsum.col.cont <- col.summary(genotype.s[CADcontrols,])
-HWE.use <- with(snpsum.col.cont, !is.na(z.HWE) & ( abs(z.HWE) < abs( qnorm(HWE.thres/2))))
+HWE.use <- with(snpsum.col.cont, 
+                !is.na(z.HWE) & ( abs(z.HWE) < abs( qnorm(HWE.thres/2))))
 rm(snpsum.col.cont)
 
 HWE.use[is.na(HWE.use)] <- FALSE          # Remove NA's as well
@@ -200,3 +201,5 @@ print(head(genotype.s))
 ### Here we could save the filtered genotype.s as a clean csv? 
 
 # on to script 4.Data.generation
+
+#___ end _______________________________________________________________________
