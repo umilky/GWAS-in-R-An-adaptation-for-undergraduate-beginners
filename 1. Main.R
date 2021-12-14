@@ -6,6 +6,29 @@
 # purpose of this code is to familiarize ourselves with the different 
 # steps involved in a GWAS analysis in R. 
 
+# R version
+R.version.string
+# "R version 4.1.2 (2021-11-01)" 
+
+# NOTE: run the 1.Main.R before starting your session.
+# === notes ====================================================================
+
+# . The code must be run sequentially. 
+# . Ensure all the packages listed below are installed and loaded before 
+# running the code.
+
+# === script index =============================================================
+
+# 1.Main.R        
+# 2.Reading.raw.data.R
+# 3.Data.filtering.R
+# 4.Dataa.generation.R
+# 5.Data.analysis.R
+# 6.Visualization.R 
+
+# Other scripts included in this repository are required to run some functions 
+# used in the aforementioned scripts. 
+
 # === Installing Packages ======================================================
 if (!requireNamespace("BiocManager", quietly = TRUE))
     install.packages("BiocManager")
@@ -77,4 +100,6 @@ gwaa.out <- sprintf("%s/GWASout.txt", p.gwas)
 impute.out.fname <- sprintf("%s/Imputation.csv", p.gwas)
 
 # on to script 2.Reading.raw.data.R
+
+#___ end _______________________________________________________________________
 
