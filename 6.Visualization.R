@@ -43,7 +43,7 @@ dev.off()
 # estlambda from the package GenABEL to generate our QQ plots. 
 
 # creating QQ Plot and saving it as a .pdf
-pdf(paste(p.graphics, "lambda.plot.pdf", sep = ""))
+pdf(paste(p.graphics, "qq.plot.pdf", sep = ""))
 lambda.plot.s <- estlambda(GWAS.output$t.value^2, plot = TRUE, 
                            method = "median")
 dev.off()

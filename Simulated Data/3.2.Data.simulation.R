@@ -41,7 +41,8 @@ write.csv(sim.phen, paste(p.simulated.data, "sim.phen.csv", sep = ""),
 # === 2) Genomic data simulation ===============================================
 
 # Data Simulation Using GenIO to create a large genotype matrix for analysis. 
-# Umayeer add here #######
+# We randomly generate binary genotype data and use the parameters to 
+# create PLINK readable files to use in our template.
 
 # Data dimensions.
 
