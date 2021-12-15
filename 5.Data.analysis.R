@@ -163,6 +163,7 @@ str(GWAS.comb)
 # Write GWAS.output & GWAS.comb for future use. 
 # *Note this function can take a few minutes
 save(GWAS.output, GWAS.comb, file = working.data.fname(5))
+
 # on to script 6.Visualization 
 
 #___ end _______________________________________________________________________

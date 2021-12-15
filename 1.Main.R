@@ -21,7 +21,7 @@ R.version.string
 # • The code must be run sequentially, following the numerical order,
 #   the .R script files without numerical names do not need to be run. 
 #   However the code saves objects between scripts such that the environment can 
-#   be closed or restartet if needed or if a crash happens. 
+#   be closed or restarted if needed or if a crash happens. 
 # • Ensure all the packages listed below are installed and loaded before 
 #   running the code.
 # • After running the main code please continue to the 
@@ -49,13 +49,13 @@ R.version.string
 # 2.6.Visualization.R 
 
 # For "Simulated Data" folder
-# 2.1.Main.R     
-# 2.2.Data.simulation.R
-# 2.3.Reading.raw.data.R
-# 2.4.Data.filtering.R
-# 2.5.Dataa.generation.R
-# 2.6.Data.analysis.R
-# 2.7.Visualization.R 
+# 3.1.Main.R     
+# 3.2.Data.simulation.R
+# 3.3.Reading.raw.data.R
+# 3.4.Data.filtering.R
+# 3.5.Dataa.generation.R
+# 3.6.Data.analysis.R
+# 3.7.Visualization.R 
 
 # Other scripts included in this repository are required to run some functions 
 # used in the aforementioned scripts. 

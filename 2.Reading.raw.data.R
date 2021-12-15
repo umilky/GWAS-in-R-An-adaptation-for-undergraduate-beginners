@@ -69,6 +69,6 @@ genotype.s <- genotype[phenotype$FamID, ]
 # *Note this function can take a few minutes
 save(genotype.s, geno.bim, phenotype, file = working.data.fname(2))
 
-# On to script 3.Data.filtering 
+# On to script 3.Data.filtering.R 
 
 #___ end _______________________________________________________________________

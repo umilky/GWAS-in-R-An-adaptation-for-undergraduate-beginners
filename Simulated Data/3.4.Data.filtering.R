@@ -204,7 +204,7 @@ pctab <- data.frame(sample.id = pca.anc$sample.id,
 #pdf(paste(p.graphics, "pc.plot.pdf", sep = ""))
 pc.plot <- plot(pctab$PC2, pctab$PC1, xlab = "Principal Component 2",
                 ylab = "Principal Component 1", main = "Ancestry Plot")
-?dev.off()
+dev.off()
 
 
 # === 5) SNP level-filtering: Hardy-Weinberg equilibrium =======================
