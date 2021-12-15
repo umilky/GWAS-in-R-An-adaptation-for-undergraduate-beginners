@@ -10,6 +10,11 @@
 # The code is designed to run one GWA analysis at a time and 
 # should not be used to analyze data from multiple populations parallel.
 
+# GWAS main version 
+# This version of the GWAS analysis runs on data downloaded from 
+# Reed et al. (2015). The downloaded data is collected from humans and 
+# measures genomic data along with phenotype data for coronary artery 
+# disease along with lipid level of triglycerides, HDL and LDL. 
 
 # R version
 R.version.string
