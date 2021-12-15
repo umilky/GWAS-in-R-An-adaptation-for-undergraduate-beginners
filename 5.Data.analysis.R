@@ -1,66 +1,92 @@
-# === Data analysis ============================================================
+# === Data Analysis ============================================================
 
-## installing packages 
-# They are in our GitHub Repository 
+# *Note 1.Main. R is required to run first to access folder paths and to input 
+# raw data required to run this script.
+# All scripts must be run in numerical order 
+# Load data created in previous script, 4.Data.Generation.R
+load(working.data.fname(4))
 
-### we could create a folder called "packages" and add them in there?
+# The following script performs a genome-wide association analysis(GWAA) of 
+# typed SNPs this is specific to the data and here we use the HDL-cholestrol 
+# as the trait. The results of the GWAA are then sorted into a data frame for 
+# visualization in the next script. An association analysis is  also run for the 
+# imputed SNPs which are also sorted into a data frame for further analysis. 
 
-# association analysis of typed SNPs 
-# this is specific to the data and here we use the HDL-cholestrol as the trait
+# 1) Manipulation of Phenotype Data
+# 2) Run GWAA
+# 3) GWAA Object Creation
+# 4) Association analysis of imputed SNPs 
+# 5) Integrating typed and imputed SNPs
 
-# merge clinical data and principal components to create phenotype table
+# === 1) Manipulation of Phenotype Data ========================================
 
+# Creating a suitable table to run a genome-wide association analysis(GWAA) that
+# includes phenotype data and principle components. The data is also visualized 
+# to check for normality and adjusted accordingly. 
+
+# Merge phenotype data and principal components to create phenotype table
 pheno.sub <- merge.data.frame(phenotype,pcs) 
 # data frame => [FamID CAD sex age hdl...pc10]
 
-# rank-based inverse normal transformation of hdl
+# Rank-based inverse normal transformation of HDL
 pheno.sub$phenotype <- rntransform(pheno.sub$hdl, family = "gaussian")
 
-# show that the assumptions of normality met after transformation
+# Show that the assumptions of normality met after transformation
 par(mfrow=c(1,2))
 hist(pheno.sub$hdl, main = "Histogram of HDL", xlab = "HDL")
 hist(pheno.sub$phenotype, main = "Histogram of Transformed HDL",
      xlab = "Transformed HDL")
 
-# remove columns that are unnecessary from the table 
+# Remove columns that are unnecessary from the table 
+# Age and sex are left in table as they established covariates for HDL level 
 pheno.sub$hdl <- NULL
 pheno.sub$ldl <- NULL
 pheno.sub$tg <- NULL 
 pheno.sub$CAD <- NULL 
 
-
 # Rename columns to match names necessary for GWAS() function 
 names(pheno.sub)[names(pheno.sub ) == "FamID"] <- "id"
 
-# Include only subjects with hdl data 
+# Include only subjects with HDL data 
 pheno.sub <- pheno.sub[!is.na(pheno.sub$phenotype),]
 # 1309 subjects identified to have phenotype data
-
 print (head(pheno.sub))
 
 
-# Run GWAS analysis using parallel processing 
+# === 2) Run GWAA ==============================================================
 
-# loading required packages 
-#### we have this in 1.main 
-#library(plyr)
+# Use GWAA function to run analysis on merged data frame 
 
 # Loading GWAS function. This function was created by Reed et al. (2015).
 # Gives output as a .txt file 
-
 source("GWAA.R")
 
-# The GWAA function takes an hour or two to run depending on data and your computer
-# Don't get discouraged if you don't see anything for a bit.
+# The GWAA function takes an hour or two to run depending on the size of 
+# the data frame and your computer don't get discouraged 
+# if you don't see anything for a bit.
 
 Start <- Sys.time()
 
 GWAA(genodata = genotype.s, phenodata = pheno.sub, filename = gwaa.out)
 
 End <- Sys.time()
+
+# Inform user of run time 
 print(End-Start)
 
-# Reading GWAS output 
+# The GWAA file can be found in the folder "c.GWAS" 
+# under the file name "GWASout.txt".
+
+
+# === 3) GWAA Object Creation ==================================================
+
+# Reading "GWASout.txt" file to create data frame with results from GWAA.
+# A negative log of the p-values is calculated to compare against the 
+# Bonferroni corrected threshold and the less stringent suggestive 
+# association threshold. 
+# The data frame will be used to visualize a Manhattan plot in the next script. 
+
+# Reading GWAA output 
 GWAS.output <- read.table(gwaa.out, sep = "",header=TRUE, 
                          colClasses=c("character"))
 head(GWAS.output)
@@ -70,25 +96,31 @@ GWAS.output$p.value <- as.numeric(GWAS.output$p.value)
 GWAS.output$neg.logp <- -log10(GWAS.output$p.value)
 head(GWAS.output)
 
-
 # Merge output with geno.bim by SNP name to add position and chromosome number
-# this does not work and kills the whole thing :(
 GWAS.output <- merge(GWAS.output, geno.bim[,c("SNP", "chr", "position")], 
                     by = "SNP")
 head(GWAS.output)
-#rm(geno.bim)
+
+# Tagging SNPs by type 
+GWAS.output$type <- "typed"
+
+# Data check to make sure plots can run correctly. 
+GWAS.output$t.value <- as.numeric(GWAS.output$t.value)
 
 # Order SNPs by significance 
 GWAS.output <- arrange(GWAS.output, neg.logp)
 print(head(GWAS.output))
 
 
-## Association analysis of imputed SNPs 
+# === 4) Association analysis of imputed SNPs ==================================
 
-# Performing association testing for the imputed SNPs
+# Association analysis of imputed SNPs to be included in Manhattan plot. 
+# Imputed SNPs will be compared to the same threshold as the typed SNPs 
 
+# Setting row names for pheno.sub 
 rownames(pheno.sub) <- pheno.sub$id
 
+# Performing association testing for the imputed SNPs
 imp <- snp.rhs.tests(phenotype ~ sex + age + pc1 + pc2 + pc3 + pc4 + pc5 + pc6 +
                        pc7 + pc8 + pc9 + pc10, family = "Gaussian", 
                      data = pheno.sub, snp.data = target, rules = rules)
@@ -98,13 +130,13 @@ imp.results <- data.frame(SNP = imp@snp.names, p.value = p.value(imp),
                       stringsAsFactors = FALSE)
 imp.results <- imp.results[!is.na(imp.results$p.value),]
 
-# Writing a file containing the results 
-# write.csv(results, impute.out.fname, row.names = FALSE)
-
 # Merge imputation testing results with support 
 impute.out <- merge(imp.results, support[,c("SNP", "position")])
+
+# Subsetting for chromosome 16 based on available 1000 Genomes data
 impute.out$chr <- 16
 
+# Tagging SNPs by type 
 impute.out$type <- "imputed"
 
 # Calculating the -log10 of the imputed p-values 
@@ -114,48 +146,23 @@ impute.out$neg.logp <- -log10(impute.out$p.value)
 impute.out <- arrange(impute.out, p.value)
 print(head(impute.out))
 
-# map2gene function 
-# Returns the subset of SNPs that are within extend.boundary of gene
-# using the coords table of gene locations
-map2gene <- function(gene, coords, SNPs, extend.boundary = 5000) {
-  coordsSub <- coords[coords$gene == gene,] 
-  #Subset coordinate file for spcified gene
-  coordsSub$start <- coordsSub$start - extend.boundary # Extend gene boundaries
-  coordsSub$stop <- coordsSub$stop + extend.boundary
-  SNPsub <- SNPs[SNPs$position >= coordsSub$start 
-                 & SNPs$position <= coordsSub$stop &
-                   SNPs$chr == coordsSub$chr,] #Subset for SNPs in gene
-  return(data.frame(SNPsub, gene = gene, stringsAsFactors = FALSE))
-}
 
-#Reading file containing protein coding gene coordinates 
-genes <- read.csv(protein.coding.coords.fname, stringsAsFactors = FALSE)
+# === 5) Integrating typed and imputed SNPs  ==================================
 
-#Subset for CETP SNPs
-impCETP <- map2gene("CETP", coords = genes, SNPs = impute.out)
+# Merging of typed and imputed SNPs for visualization in next script. 
 
-# Filtering the imputed CETP SNP genotypes
-impCETPgeno <- imputed[, impCETP$SNP]
-
-
-## Integrating typed and imputed SNPs 
-
-GWAS.output$type <- "typed"
-
+# Combination of typed and imputed data frames 
 GWAS.comb <- rbind.fill(GWAS.output, impute.out)
 head(GWAS.comb)
 tail(GWAS.comb)
 str(GWAS.comb)
 
-#Subset for CETP SNPs 
-typCETP <- map2gene("CETP", coords = genes, SNPs = GWAS.output)
 
-#Combine CETP SNPs for typed and imputed analysis 
+# ******************************************************************************
 
-CETP <- rbind.fill(typCETP, impCETP)[,c("SNP", "p.value", "neg.logp", "chr",
-                                        "position", "type", "gene")]
-
-print(CETP)
+# Write GWAS.output & GWAS.comb for future use. 
+# *Note this function can take a few minutes
+save(GWAS.output, GWAS.comb, file = working.data.fname(5))
 # on to script 6.Visualization 
 
 #___ end _______________________________________________________________________

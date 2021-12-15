@@ -1,8 +1,8 @@
 # ---- manhattan ----
 # Receives a data.frame of SNPs with neg.logp, chr, position, and type.
 # Plots Manhattan plot with significant SNPs highlighted.
-GWAS.manhattan <- function(GWAS, col.snps=c("black","gray"),
-                           col.detected=c("blue"), col.imputed=c("red"), col.text="black",
+GWAS.manhattan <- function(GWAS, col.snps=c("black","red"),
+                           col.detected=c("blue"), col.imputed=c("green"), col.text="black",
                            title="GWAS Tutorial Manhattan Plot", display.text=TRUE,
                            bonferroni.alpha=0.05, bonferroni.adjustment=1000000,
                            Lstringent.adjustment=10000) {
